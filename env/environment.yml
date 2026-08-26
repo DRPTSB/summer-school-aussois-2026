@@ -1,0 +1,48 @@
+name: spatial-course-2026
+# Conda environment for the France 2026 Spatial Transcriptomics summer school.
+#   conda env create -f env/environment.yml
+#   conda activate spatial-course-2026
+#   # then install TissueTag from the main branch (see the pip section below — it is included)
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.10
+  - pip
+  # --- scientific core ---
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - scikit-image>=0.22,<0.25   # aux RF classifier uses skimage.future.trainable_segmentation
+  - matplotlib
+  - seaborn
+  - h5py
+  - pytables            # .h5 annotation IO (imported as `tables`)
+  - opencv              # cv2, used by bin2cell
+  - tifffile
+  - imagecodecs
+  - jupyterlab
+  - ipywidgets
+  - pip:
+      # --- single cell / spatial ---
+      - scanpy
+      - anndata
+      - squidpy
+      - celltypist
+      - leidenalg
+      - igraph
+      # --- bin2cell + StarDist segmentation ---
+      - bin2cell
+      - stardist
+      - csbdeep
+      - tensorflow        # StarDist backend (use tensorflow-macos on Apple Silicon; see README)
+      # --- TissueTag2 (install from the MAIN branch) ---
+      - "git+https://github.com/DRPTSB/TissueTag2.git@main"
+      # TissueTag interactive annotator stack
+      - panel
+      - bokeh
+      - jupyter-bokeh
+      - holoviews
+      - datashader
+      - tinybrain

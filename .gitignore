@@ -1,0 +1,21 @@
+# raw data & checkpoints (too large for git)
+data/crc/
+data/mouse_brain/
+data/checkpoints/
+*.h5ad
+*.btf
+*.tif
+*.tiff
+*.npz
+stardist/
+
+# notebook / python cruft
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.DS_Store
+figures/
+
+# envs
+.venv/
+env/.conda/
