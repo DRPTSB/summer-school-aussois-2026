@@ -2,15 +2,34 @@ name: spatial-course-2026
 # Conda environment for the France 2026 Spatial Transcriptomics summer school.
 #   conda env create -f env/environment.yml
 #   conda activate spatial-course-2026
+#   if you want to add the kernel to jupyter
+#   conda install ipykernel -c conda-forge
+#   python -m ipykernel install --user --name spatial-course-2026 --display-name "Python (spatial-course-2026)"
 #   # then install TissueTag from the main branch (see the pip section below — it is included)
+#
+# NOTE ON NUMPY (do not unpin):
+#   bin2cell loads the H&E as float16 and percentile-normalizes it. NumPy 2.0–2.3 has a bug
+#   (numpy/numpy#29003) where np.percentile on a large float16 array overflows the interpolation
+#   index and returns NaN -> the normalized image is all-NaN -> StarDist finds ZERO cells with no
+#   hard error. It was fixed in NumPy 2.4.0, but 2.4 requires Python >= 3.11, so it can't be used on
+#   this 3.10 env. We therefore pin numpy=1.26.4 (last 1.x; computes the index in float64, no bug).
+#   On a fresh solve, tensorflow may pull ml-dtypes, whose metadata asks for numpy>=2 — pip prints a
+#   dependency-conflict WARNING but installs fine and works at runtime; that warning is expected.
+#   Alternative if you rebuild on Python 3.11: set python=3.11 and numpy>=2.4 (bug fixed, no warning).
+#
+# NOTE ON SETUPTOOLS (do not unpin):
+#   squidpy -> spatialdata -> xarray_schema still imports `pkg_resources`, which lives in setuptools.
+#   setuptools >= 81 removed pkg_resources, so a newer setuptools breaks `import squidpy` with
+#   "No module named 'pkg_resources'". We pin setuptools<81 so pkg_resources stays importable.
 channels:
   - conda-forge
   - bioconda
 dependencies:
   - python=3.10
   - pip
+  - setuptools<81      # PINNED: keeps pkg_resources, which squidpy/spatialdata/xarray_schema import
   # --- scientific core ---
-  - numpy
+  - numpy=1.26.4        # PINNED: avoids the NumPy 2.0–2.3 float16-percentile bug (see note above)
   - pandas
   - scipy
   - scikit-learn
@@ -31,7 +50,7 @@ dependencies:
       - squidpy
       - celltypist
       - leidenalg
-      - igraph
+      - igraph            # fast Leiden backend: sc.tl.leiden(..., flavor="igraph", n_iterations=2)
       # --- bin2cell + StarDist segmentation ---
       - bin2cell
       - stardist
