@@ -16,11 +16,10 @@ tutorials and use only functions built into those packages.
 ## What you'll learn
 
 **Notebook 1 — bin2cell → CellTypist → squidpy**
-- Correct the Visium HD "stripe" artefact (`b2c.destripe`)
 - Segment nuclei on H&E with StarDist and rescue cells from gene expression
 - Group 2 µm bins into **single cells** (`b2c.bin_to_cell`)
 - Annotate cell types with CellTypist (public CRC model, optional 2-model combine)
-- **New:** quantify which cell types sit together with squidpy **neighbourhood enrichment** and **co-occurrence**
+- quantify which cell types sit together with squidpy **neighbourhood enrichment** and **co-occurrence**
 
 **Notebook 2 — TissueTag2**
 - Annotate tissue regions: gene-expression seeds → Random-Forest pixel classifier → interactive drawing
@@ -48,27 +47,6 @@ jupyter lab
 > which carries the current distance/axis API used in Notebook 2. The notebook follows the teaching flow of the
 > `oa_update` mouse-brain tutorial but calls the `main`-branch functions.
 
-### Notes & caveats
-- **StarDist needs TensorFlow.** On Apple Silicon use `tensorflow-macos` (+ optional `tensorflow-metal`); on HPC a CUDA build is much faster. Segmentation of a whole capture area is the slowest step.
-- **scikit-image is pinned `<0.25`** because the TissueTag2 tutorial's Random-Forest helper uses `skimage.future.trainable_segmentation`.
-- The **interactive annotator** (Notebook 2) needs a running Jupyter/Panel server; on a remote server set `host` to the port in your browser's address bar.
-- Running everything live is slow — use the **pre-computed checkpoints** (see below).
-
-## Running live vs. pre-computed checkpoints
-
-Each notebook check-points its expensive steps to `data/checkpoints/` and can load them to skip ahead.
-Generate the bin2cell checkpoints once with `python scripts/prep_checkpoints.py`, and save your
-TissueTag annotation `.h5` from Notebook 2. Host these small files on a **GitHub Release** or shared
-Drive/Zenodo for students to download before the session. See [`data/README.md`](data/README.md).
-
-## Repository layout
-
-```
-notebooks/   the two tutorial notebooks
-scripts/     download_data.sh, prep_checkpoints.py, vis_hd_aux_func.py (TissueTag2 helpers)
-env/         environment.yml, requirements.txt
-data/        (git-ignored) datasets + checkpoints — see data/README.md
-```
 
 ## Credits & references
 - **bin2cell** — Polański et al., *Bioinformatics* 2024. https://github.com/Teichlab/bin2cell
