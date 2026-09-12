@@ -1,0 +1,77 @@
+name: spatial-course-2026-nb1
+
+# =====================================================================
+# Notebook 1: bin2cell (CRC Visium HD) -> CellTypist -> squidpy proximity
+# France 2026 Spatial Transcriptomics summer school.
+#
+#   conda env create -f env/environment_notebook1.yml
+#   conda activate spatial-course-2026-nb1
+#   python -m ipykernel install --user \
+#       --name spatial-course-2026-nb1 \
+#       --display-name "Python (spatial NB1: bin2cell)"
+#
+# Then open 01_bin2cell_crc_celltypist_squidpy.ipynb and select the
+# "Python (spatial NB1: bin2cell)" kernel.
+# =====================================================================
+#
+# NOTE ON NUMPY (do not unpin):
+#   bin2cell loads the H&E as float16 and percentile-normalizes it. NumPy 2.0-2.3 has a bug
+#   (numpy/numpy#29003) where np.percentile on a large float16 array overflows the interpolation
+#   index and returns NaN -> the normalized image is all-NaN -> StarDist finds ZERO cells with no
+#   hard error. Fixed in NumPy 2.4.0, but 2.4 requires Python >= 3.11, so it can't be used on this
+#   3.10 env. We therefore pin numpy=1.26.4 (last 1.x; computes the index in float64, no bug).
+#   (With TensorFlow pinned to the 2.15 line below, ml-dtypes stays on a numpy<2 build, so the old
+#   ml-dtypes "numpy>=2" pip warning does not appear.)
+#
+# NOTE ON SETUPTOOLS (do not unpin):
+#   squidpy -> spatialdata -> xarray_schema still imports `pkg_resources`, which lives in
+#   setuptools. setuptools >= 81 removed pkg_resources, so a newer setuptools breaks
+#   `import squidpy` with "No module named 'pkg_resources'". We pin setuptools<81.
+#
+# NOTE ON TENSORFLOW (StarDist backend) — pinned to the 2.15 line on every platform:
+#   (1) StarDist/csbdeep need Keras 2 (tf.keras). TF >= 2.16 switches to Keras 3, which breaks
+#       StarDist. TF 2.15 bundles Keras 2.15. (2) TF 2.15 requires numpy<2, matching numpy=1.26.4.
+#   On macOS Apple Silicon the plain `tensorflow` PyPI wheel SEGFAULTS on import (process exits 139),
+#   so Apple's `tensorflow-macos` build is used there instead; every other platform uses `tensorflow`.
+#   The environment markers on the two pip lines below select the right one automatically.
+#   Do NOT add tensorflow-metal — its Metal plugin crashes StarDist.
+
+channels:
+  - conda-forge
+  - bioconda
+
+dependencies:
+  - python=3.10
+  - pip
+  - setuptools<81            # PINNED: keeps pkg_resources, which squidpy/spatialdata/xarray_schema import
+  # --- scientific core ---
+  - numpy=1.26.4             # PINNED: avoids the NumPy 2.0-2.3 float16-percentile bug (see note above)
+  - pandas
+  - scipy
+  - scikit-learn
+  - scikit-image>=0.22,<0.25
+  - matplotlib
+  - seaborn
+  - h5py
+  - pytables                 # .h5 IO (imported as `tables`)
+  - opencv                   # cv2, used by bin2cell
+  - tifffile
+  - imagecodecs
+  - jupyterlab
+  - ipykernel
+  - ipywidgets
+  - pip:
+      # --- single cell / spatial ---
+      - scanpy
+      - anndata
+      - squidpy
+      - celltypist
+      - leidenalg
+      - igraph               # fast Leiden backend: sc.tl.leiden(..., flavor="igraph", n_iterations=2)
+      # --- bin2cell + StarDist segmentation ---
+      - bin2cell
+      - stardist
+      - csbdeep
+      # TensorFlow backend for StarDist, Keras-2 line (2.15), platform-selected (see NOTE above):
+      - "tensorflow-macos==2.15.0 ; sys_platform == 'darwin' and platform_machine == 'arm64'"
+      - "tensorflow==2.15.* ; sys_platform != 'darwin' or platform_machine != 'arm64'"
