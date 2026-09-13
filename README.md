@@ -29,24 +29,37 @@ tutorials and use only functions built into those packages.
 
 ## Setup
 
+The two notebooks have conflicting dependencies, so **each has its own environment** — create both.
+Examples use `mamba`; `conda` works identically.
+
 ```bash
-# 1) create the environment (conda recommended)
-conda env create -f env/environment.yml
-conda activate spatial-course-2026
-# TissueTag2 is installed from its main branch by the env file.
-# (pip-only alternative: python -m venv .venv && pip install -r env/requirements.txt)
+# 1) create the two environments
+mamba env create -f env/environment_notebook1.yml   # NB1: bin2cell / CellTypist / squidpy
+mamba env create -f env/environment_notebook2.yml   # NB2: TissueTag2
 
-# 2) download the data (several GB — do this before the session)
-bash scripts/download_data.sh          # or: ... crc  /  ... brain
+# 2) register a Jupyter kernel for each
+mamba run -n spatial-course-2026-nb1 python -m ipykernel install --user \
+  --name spatial-course-2026-nb1 --display-name "Python (spatial NB1: bin2cell)"
+mamba run -n spatial-course-2026-nb2 python -m ipykernel install --user \
+  --name spatial-course-2026-nb2 --display-name "Python (spatial NB2: TissueTag2)"
 
-# 3) launch
+# 3) download the data (several GB — do this before the session)
+bash scripts/download_data.sh            # or:  ... crc   /   ... brain
+
+# 4) launch
 jupyter lab
 ```
 
-> **TissueTag2 is installed from the `main` branch** (`pip install "git+https://github.com/DRPTSB/TissueTag2.git@main"`),
-> which carries the current distance/axis API used in Notebook 2. The notebook follows the teaching flow of the
-> `oa_update` mouse-brain tutorial but calls the `main`-branch functions.
+Then, in each notebook:
 
+- **Select the matching kernel** — NB1 → *Python (spatial NB1: bin2cell)*, NB2 → *Python (spatial NB2: TissueTag2)*.
+- **Set `DATA_DIR`** at the top of the notebook to where you downloaded the data (the paths `download_data.sh` prints at the end, e.g. `data/crc` and `data/mouse_brain`).
+
+Notes:
+
+- **Apple Silicon:** NB1's env installs `tensorflow-macos` automatically — the plain `tensorflow` wheel segfaults on import on M-series Macs. Nothing for you to do; the env file handles it per platform.
+- **TissueTag2** is installed from its `main` branch by NB2's env file, which carries the current distance/axis API used in Notebook 2. The notebook follows the teaching flow of the `oa_update` mouse-brain tutorial but calls the `main`-branch functions.
+- A single combined `env/environment.yml` is kept for reference, but the two per-notebook files above are the recommended setup.
 
 ## Credits & references
 - **bin2cell** — Polański et al., *Bioinformatics* 2024. https://github.com/Teichlab/bin2cell
