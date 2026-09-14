@@ -13,18 +13,17 @@ name: spatial-course-2026-nb1
 # NUMPY 1.26.4 (do not unpin):
 #   bin2cell normalises the H&E as float16. NumPy 2.0-2.3 has a bug where
 #   np.percentile on a large float16 array overflows → all-NaN image →
-#   StarDist finds 0 cells with no error. Fixed in 2.4 (Python 3.11+).
-#   Pin 1.26.4 (last 1.x, computes the index in float64).
+#   StarDist finds 0 cells. Fixed in 2.4 (Python 3.11+ only). Pin 1.26.4.
 #
 # SETUPTOOLS <81 (do not unpin):
-#   squidpy → spatialdata → xarray_schema imports pkg_resources, removed
-#   in setuptools 81.
+#   squidpy → spatialdata → xarray_schema imports pkg_resources, removed in 81.
 #
 # TENSORFLOW 2.15 (do not unpin):
-#   StarDist/csbdeep require Keras 2 (tf.keras). TF ≥ 2.16 switches to
-#   Keras 3 and breaks StarDist. On Apple Silicon the plain tensorflow
-#   wheel segfaults; tensorflow-macos is used there instead (auto-selected
-#   by the platform markers below).
+#   StarDist/csbdeep require Keras 2 (tf.keras). TF ≥ 2.16 breaks StarDist.
+#   On Apple Silicon tensorflow segfaults; tensorflow-macos is auto-selected.
+#
+# Heavy packages (tensorflow, stardist, squidpy, celltypist) go through pip
+# to keep the conda solve fast.
 
 channels:
   - conda-forge
@@ -34,7 +33,7 @@ dependencies:
   - python=3.10
   - pip
   - setuptools<81
-  # --- scientific core ---
+  # --- scientific core (conda for fast binary builds) ---
   - numpy=1.26.4
   - pandas
   - scipy
@@ -46,10 +45,10 @@ dependencies:
   - pytables
   - opencv
   - tifffile
+  - igraph
   - jupyterlab
   - ipykernel
   - ipywidgets
-  - igraph                   # leiden with flavor="igraph" — no leidenalg needed
   - pip:
       - scanpy
       - anndata

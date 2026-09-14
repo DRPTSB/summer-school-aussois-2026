@@ -2,8 +2,23 @@ name: spatial-course-2026-nb2
 
 # =====================================================================
 # Notebook 2: TissueTag2 region annotation (mouse brain Visium HD)
-# France 2026 Spatial Transcriptomics summer school — trimmed env.
+# France 2026 Spatial Transcriptomics summer school.
+#
+#   micromamba env create -f env/environment_notebook2.yml
+#   micromamba run -n spatial-course-2026-nb2 python -m ipykernel install --user \
+#       --name spatial-course-2026-nb2 \
+#       --display-name "Python (spatial NB2: TissueTag2)"
 # =====================================================================
+#
+# SCIKIT-IMAGE <0.25 (do not unpin):
+#   TissueTag uses skimage.future.trainable_segmentation, removed in 0.25.
+#
+# SETUPTOOLS <81 (do not unpin):
+#   older datashader/holoviews stacks import pkg_resources (removed in 81).
+#
+# The panel/bokeh/holoviews/datashader stack is installed via pip (not conda)
+# to keep the conda solve fast — conda struggles to co-resolve these with the
+# scikit-image pin.
 
 channels:
   - conda-forge
@@ -14,12 +29,12 @@ dependencies:
   - pip
   - setuptools<81
   - git
-  # --- scientific core ---
+  # --- scientific core (conda for the fast binary builds) ---
   - numpy
   - pandas
   - scipy
   - scikit-learn
-  - scikit-image>=0.22,<0.25   # TissueTag uses skimage.future.trainable_segmentation
+  - scikit-image>=0.22,<0.25
   - matplotlib
   - h5py
   - pytables
@@ -28,14 +43,16 @@ dependencies:
   - jupyterlab
   - ipykernel
   - ipywidgets
-  # --- TissueTag2 interactive annotator (pinned to help solver) ---
-  - bokeh=3.4.*
-  - panel=1.4.*
-  - jupyter-bokeh
-  - holoviews=1.19.*
-  - datashader
   - pip:
+      # single-cell
       - scanpy
       - anndata
+      # TissueTag2 interactive stack (all pip — avoids conda solver conflicts)
+      - "bokeh>=3.4,<3.5"
+      - "panel>=1.4,<1.5"
+      - jupyter-bokeh
+      - "holoviews>=1.19,<1.20"
+      - datashader
       - tinybrain
+      # TissueTag2 from main branch
       - "git+https://github.com/DRPTSB/TissueTag2.git@main"
