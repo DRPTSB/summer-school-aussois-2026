@@ -22,7 +22,7 @@ name: spatial-course-2026-nb2
 
 channels:
   - conda-forge
-  - bioconda
+  # bioconda removed: dry-run on linux-64 confirmed all packages resolve from conda-forge
 
 dependencies:
   - python=3.10
