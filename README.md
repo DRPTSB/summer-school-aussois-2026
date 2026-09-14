@@ -19,7 +19,7 @@ tutorials and use only functions built into those packages.
 - Segment nuclei on H&E with StarDist and rescue cells from gene expression
 - Group 2 µm bins into **single cells** (`b2c.bin_to_cell`)
 - Annotate cell types with CellTypist (public CRC model, optional 2-model combine)
-- quantify which cell types sit together with squidpy **neighbourhood enrichment** and **co-occurrence**
+- Quantify which cell types sit together with squidpy **neighbourhood enrichment** and **co-occurrence**
 
 **Notebook 2 — TissueTag2**
 - Annotate tissue regions: gene-expression seeds → Random-Forest pixel classifier → interactive drawing
@@ -30,65 +30,49 @@ tutorials and use only functions built into those packages.
 ## Setup
 
 The two notebooks have conflicting dependencies, so **each has its own environment** — create both.
-Choose the installation path that matches your situation.
 
-### Option A — local workstation (Mac / Linux)
+### Notebook 1 — bin2cell / CellTypist / squidpy
 
 ```bash
-# 1) create the two environments  (micromamba recommended; mamba/conda also work)
-micromamba env create -f env/env_1_bin2cell.yml   # NB1: bin2cell / CellTypist / squidpy
-micromamba env create -f env/env_2_tissuetag.yml  # NB2: TissueTag2
+conda create --name b2c python=3.12
+conda activate b2c
+pip install tensorflow bin2cell stardist celltypist squidpy
 
-# 2) register a Jupyter kernel for each
-micromamba run -n spatial-course-2026-nb1 python -m ipykernel install --user \
-  --name spatial-course-2026-nb1 --display-name "Python (spatial NB1: bin2cell)"
-micromamba run -n spatial-course-2026-nb2 python -m ipykernel install --user \
-  --name spatial-course-2026-nb2 --display-name "Python (spatial NB2: TissueTag2)"
+# Register as a Jupyter kernel
+python -m ipykernel install --user --name b2c --display-name "Python (NB1: bin2cell)"
+```
 
-# 3) download the data (several GB — do this before the session)
+> **Apple Silicon (M-series Mac):** replace `tensorflow` with `tensorflow-macos` — the
+> standard wheel segfaults on ARM.
+
+### Notebook 2 — TissueTag2
+
+```bash
+micromamba env create -f env/env_2_tissuetag.yml
+micromamba activate spatial-course-2026-nb2
+
+# Register as a Jupyter kernel
+python -m ipykernel install --user \
+  --name spatial-course-2026-nb2 --display-name "Python (NB2: TissueTag2)"
+```
+
+### Download the data (several GB — do this before the session)
+
+```bash
 bash scripts/download_data.sh
+```
 
-# 4) launch
+### Launch
+
+```bash
 jupyter lab
 ```
 
-Notes:
-- **Apple Silicon:** NB1's env installs `tensorflow-macos` automatically — the plain `tensorflow` wheel segfaults on import on M-series Macs. Nothing for you to do; the env file handles it per platform.
-- **TissueTag2** is installed from its `main` branch by NB2's env file, which carries the current distance/axis API used in Notebook 2.
-- A single combined `env/environment.yml` is kept for reference, but the two per-notebook files above are the recommended setup.
+Then in each notebook:
 
-### Option B — course VM / Singularity container
-
-A single Singularity image bundles both environments with JupyterLab ready to go.
-Participants need no installation — just run the image.
-
-**Build** (once, on a Linux node with internet access):
-
-```bash
-# with root:
-singularity build env/course.sif env/spatial-course-2026.def
-
-# with fakeroot (no root required on newer Apptainer):
-singularity build --fakeroot env/course.sif env/spatial-course-2026.def
-```
-
-Build time is ~20–40 min; the resulting `.sif` is ~4–5 GB.
-
-**Run** (participants):
-
-```bash
-singularity run --bind /path/to/notebooks:/data course.sif
-```
-
-JupyterLab opens at `http://localhost:8888` with both kernels visible in the launcher.
-Set `DATA_DIR` at the top of each notebook to `/data` (or wherever you mounted your data).
-
----
-
-Then, in each notebook:
-
-- **Select the matching kernel** — NB1 → *Python (NB1: bin2cell · StarDist)*, NB2 → *Python (NB2: TissueTag2)*.
-- **Set `DATA_DIR`** at the top of the notebook to where you downloaded the data (the paths `download_data.sh` prints at the end, e.g. `data/crc` and `data/mouse_brain`).
+- **Select the matching kernel** — NB1 → *Python (NB1: bin2cell)*, NB2 → *Python (NB2: TissueTag2)*.
+- **Set `DATA_DIR`** at the top of the notebook to where you downloaded the data
+  (the paths `download_data.sh` prints at the end, e.g. `data/crc` and `data/mouse_brain`).
 
 ## Credits & references
 - **bin2cell** — Polański et al., *Bioinformatics* 2024. https://github.com/Teichlab/bin2cell
