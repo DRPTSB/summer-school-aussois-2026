@@ -2,36 +2,8 @@ name: spatial-course-2026-nb2
 
 # =====================================================================
 # Notebook 2: TissueTag2 region annotation (mouse brain Visium HD)
-#             -> distance calculations -> pia-to-white-matter axis
-#             -> cortical layers
-# France 2026 Spatial Transcriptomics summer school.
-#
-#   conda env create -f env/environment_notebook2.yml
-#   conda activate spatial-course-2026-nb2
-#   python -m ipykernel install --user \
-#       --name spatial-course-2026-nb2 \
-#       --display-name "Python (spatial NB2: TissueTag2)"
-#
-# Then open 02_tissuetag2_mouse_brain_regions.ipynb and select the
-# "Python (spatial NB2: TissueTag2)" kernel.
+# France 2026 Spatial Transcriptomics summer school — trimmed env.
 # =====================================================================
-#
-# This env is deliberately lighter than notebook 1's:
-#   - NO numpy pin. The numpy=1.26.4 pin only exists to dodge a bin2cell-specific
-#     float16 bug; notebook 2 has no bin2cell/StarDist, so numpy is left free to
-#     resolve. This also drops the tensorflow / ml-dtypes conflict warning entirely.
-#   - NO tensorflow / stardist / csbdeep / bin2cell / squidpy / celltypist.
-#   Fewer hard constraints = a much easier, more reliable solve.
-#
-# NOTE ON SCIKIT-IMAGE (do not unpin the upper bound):
-#   TissueTag's auxiliary random-forest region classifier uses
-#   skimage.future.trainable_segmentation, which was removed/relocated in
-#   scikit-image 0.25. We pin scikit-image<0.25 so that API stays available.
-#
-# NOTE ON GIT:
-#   TissueTag2 is installed from its GitHub main branch via pip's `git+https`
-#   syntax, so `git` must be present. We add it as a conda dependency here so
-#   the env installs even on machines without a system git.
 
 channels:
   - conda-forge
@@ -40,36 +12,30 @@ channels:
 dependencies:
   - python=3.10
   - pip
-  - setuptools<81            # precaution: keeps pkg_resources available for older datashader/holoviews stacks
-  - git                      # required so pip can install TissueTag2 from git+https (see note)
+  - setuptools<81
+  - git
   # --- scientific core ---
-  - numpy                    # unpinned on purpose (no bin2cell here -> no float16 bug to avoid)
+  - numpy
   - pandas
   - scipy
   - scikit-learn
-  - scikit-image>=0.22,<0.25 # PINNED: TissueTag aux RF classifier uses skimage.future.trainable_segmentation
+  - scikit-image>=0.22,<0.25   # TissueTag uses skimage.future.trainable_segmentation
   - matplotlib
-  - seaborn
   - h5py
-  - pytables                 # .h5 annotation IO (imported as `tables`)
-  - opencv                   # cv2, image ops
+  - pytables
+  - opencv
   - tifffile
-  - imagecodecs
   - jupyterlab
   - ipykernel
   - ipywidgets
+  # --- TissueTag2 interactive annotator (pinned to help solver) ---
+  - bokeh=3.4.*
+  - panel=1.4.*
+  - jupyter-bokeh
+  - holoviews=1.19.*
+  - datashader
   - pip:
-      # --- single cell / spatial data handling ---
       - scanpy
       - anndata
-      - leidenalg
-      - igraph               # fast Leiden backend, if clustering along the cortical axis
-      # --- TissueTag2 (install from the MAIN branch) ---
-      - "git+https://github.com/DRPTSB/TissueTag2.git@main"
-      # TissueTag interactive annotator stack
-      - panel
-      - bokeh
-      - jupyter-bokeh
-      - holoviews
-      - datashader
       - tinybrain
+      - "git+https://github.com/DRPTSB/TissueTag2.git@main"
