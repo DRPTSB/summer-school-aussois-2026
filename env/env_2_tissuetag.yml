@@ -4,24 +4,30 @@ name: spatial-course-2026-nb2
 # Notebook 2: TissueTag2 (DRP-TSB) ROI annotation & morphology
 # France 2026 Spatial Transcriptomics summer school.
 # =====================================================================
+#
+# PYTHON 3.12: bokeh>=3.10 requires Python>=3.12. This also matches
+#   the base JupyterLab env so jupyter_bokeh works inline.
+#
+# SCIKIT-IMAGE <0.25: TissueTag uses skimage.future.trainable_segmentation,
+#   removed in 0.25.
 
 channels:
   - conda-forge
   - nodefaults
 
 dependencies:
-  - python=3.10
+  - python=3.12
   - pip
   - ipykernel
   - jupyterlab
   - ipywidgets
-  - jupyter_bokeh         # Required for interactive Bokeh plots in JupyterLab
+  - jupyter_bokeh          # inline Bokeh/Panel in JupyterLab
 
-  # --- Scientific & Image core (conda-forge binaries for speed) ---
+  # --- Scientific & Image core ---
   - numpy
   - pandas
   - scipy
-  - scikit-image
+  - scikit-image>=0.22,<0.25
   - scikit-learn
   - matplotlib
   - tifffile
@@ -29,12 +35,12 @@ dependencies:
 
   # --- Interactive Visualization stack ---
   - "bokeh>=3.10,<3.11"
-  - "panel>=2.0"
+  - "panel>=1.4"
   - holoviews
   - datashader
 
   - pip:
       - scanpy
       - anndata
-      # Install TissueTag2 directly from GitHub:
+      - tinybrain
       - git+https://github.com/DRPTSB/TissueTag2.git
