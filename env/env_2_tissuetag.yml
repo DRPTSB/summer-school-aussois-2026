@@ -1,0 +1,39 @@
+name: spatial-course-2026-nb2
+
+# =====================================================================
+# Notebook 2: TissueTag2 (DRP-TSB) ROI annotation & morphology
+# France 2026 Spatial Transcriptomics summer school.
+# =====================================================================
+
+channels:
+  - conda-forge
+  - nodefaults
+
+dependencies:
+  - python=3.10
+  - pip
+  - ipykernel
+  - jupyterlab
+  - ipywidgets
+  - jupyter_bokeh         # Required for interactive Bokeh plots in JupyterLab
+
+  # --- Scientific & Image core (conda-forge binaries for speed) ---
+  - numpy
+  - pandas
+  - scipy
+  - scikit-image
+  - scikit-learn
+  - matplotlib
+  - tifffile
+  - pillow
+
+  # --- Interactive Visualization stack ---
+  - bokeh
+  - holoviews
+  - datashader
+
+  - pip:
+      - scanpy
+      - anndata
+      # Install TissueTag2 directly from GitHub:
+      - git+https://github.com/DRPTSB/TissueTag2.git

@@ -1,0 +1,21 @@
+name: spatial-course-2026-nb1
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.10
+  - pip
+  - ipykernel
+  - setuptools<81
+  - numpy=1.26.4
+  - pip:
+      - opencv-python-headless
+      - "tensorflow-macos==2.15.0 ; sys_platform == 'darwin' and platform_machine == 'arm64'"
+      - "tensorflow==2.15.* ; sys_platform != 'darwin' or platform_machine != 'arm64'"
+      - csbdeep
+      - stardist
+      - bin2cell
+      - scanpy
+      - anndata
+      - squidpy
+      - celltypist

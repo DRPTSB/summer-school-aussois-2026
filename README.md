@@ -36,8 +36,8 @@ Choose the installation path that matches your situation.
 
 ```bash
 # 1) create the two environments  (micromamba recommended; mamba/conda also work)
-micromamba env create -f env/environment_notebook1.yml   # NB1: bin2cell / CellTypist / squidpy
-micromamba env create -f env/environment_notebook2.yml   # NB2: TissueTag2
+micromamba env create -f env/env_1_bin2cell.yml   # NB1: bin2cell / CellTypist / squidpy
+micromamba env create -f env/env_2_tissuetag.yml  # NB2: TissueTag2
 
 # 2) register a Jupyter kernel for each
 micromamba run -n spatial-course-2026-nb1 python -m ipykernel install --user \
