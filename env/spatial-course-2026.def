@@ -1,0 +1,114 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%labels
+    Maintainer ny296@cam.ac.uk
+    Version 2026
+    Description "Spatial Transcriptomics Summer School 2026 — Aussois"
+
+%help
+    Two Jupyter kernels are included:
+      • NB1 — bin2cell · CellTypist · squidpy · StarDist · TensorFlow 2.15
+      • NB2 — TissueTag2 · panel · holoviews · datashader
+
+    Run JupyterLab (bind your notebooks/data directory):
+      singularity run --bind /path/to/course:/data course.sif
+
+    Or launch manually:
+      singularity exec course.sif jupyter lab --ip=0.0.0.0 --no-browser --notebook-dir=/data
+
+    Build (on a Linux node with internet access and root/fakeroot):
+      singularity build course.sif env/spatial-course-2026.def
+      # or with fakeroot (no root required on newer Apptainer):
+      singularity build --fakeroot course.sif env/spatial-course-2026.def
+
+%files
+    env/conda-explicit-nb1.txt /opt/locks/conda-explicit-nb1.txt
+    env/conda-explicit-nb2.txt /opt/locks/conda-explicit-nb2.txt
+
+%post
+    set -euo pipefail
+    export DEBIAN_FRONTEND=noninteractive
+
+    # ── system libraries ──────────────────────────────────────────────────
+    apt-get update -qq && apt-get install -y --no-install-recommends \
+        build-essential curl git ca-certificates \
+        libgl1 libglib2.0-0 libgomp1 libsm6 libxext6 libxrender1 \
+    && rm -rf /var/lib/apt/lists/*
+
+    # ── micromamba ────────────────────────────────────────────────────────
+    curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest \
+        | tar -xvj -C /usr/local/bin/ --strip-components=1 bin/micromamba
+    export MAMBA_ROOT_PREFIX=/opt/conda
+    micromamba shell init -s bash -r /opt/conda
+
+    # ── NB1: conda packages (no solve — explicit lock) ────────────────────
+    echo ">>> NB1: conda install" && date
+    micromamba create -n spatial-course-2026-nb1 \
+        --file /opt/locks/conda-explicit-nb1.txt \
+        --yes
+
+    # ── NB1: pip packages ─────────────────────────────────────────────────
+    echo ">>> NB1: pip install" && date
+    /opt/conda/envs/spatial-course-2026-nb1/bin/pip install --no-cache-dir \
+        scanpy \
+        anndata \
+        squidpy \
+        celltypist \
+        bin2cell \
+        stardist \
+        csbdeep \
+        "tensorflow==2.15.*"
+
+    # ── NB1: register kernel (system-wide so any JupyterLab finds it) ─────
+    /opt/conda/envs/spatial-course-2026-nb1/bin/python -m ipykernel install \
+        --prefix=/usr/local \
+        --name spatial-course-2026-nb1 \
+        --display-name "Python (NB1: bin2cell · StarDist)"
+
+    # ── NB2: conda packages ───────────────────────────────────────────────
+    echo ">>> NB2: conda install" && date
+    micromamba create -n spatial-course-2026-nb2 \
+        --file /opt/locks/conda-explicit-nb2.txt \
+        --yes
+
+    # ── NB2: pip packages ─────────────────────────────────────────────────
+    echo ">>> NB2: pip install" && date
+    /opt/conda/envs/spatial-course-2026-nb2/bin/pip install --no-cache-dir \
+        scanpy \
+        anndata \
+        "bokeh>=3.4,<3.5" \
+        "panel>=1.4,<1.5" \
+        jupyter-bokeh \
+        "holoviews>=1.19,<1.20" \
+        datashader \
+        tinybrain \
+        "git+https://github.com/DRPTSB/TissueTag2.git@main"
+
+    # ── NB2: register kernel ──────────────────────────────────────────────
+    /opt/conda/envs/spatial-course-2026-nb2/bin/python -m ipykernel install \
+        --prefix=/usr/local \
+        --name spatial-course-2026-nb2 \
+        --display-name "Python (NB2: TissueTag2)"
+
+    # ── clean up package caches to shrink image ───────────────────────────
+    micromamba clean --all --yes
+    /opt/conda/envs/spatial-course-2026-nb1/bin/pip cache purge 2>/dev/null || true
+    /opt/conda/envs/spatial-course-2026-nb2/bin/pip cache purge 2>/dev/null || true
+
+    echo ">>> Build complete" && date
+
+%environment
+    export MAMBA_ROOT_PREFIX=/opt/conda
+    export PATH=/opt/conda/envs/spatial-course-2026-nb1/bin:/opt/conda/bin:/usr/local/bin:$PATH
+    # JupyterLab discovers kernels from /usr/local/share/jupyter (set in %post)
+    export JUPYTER_PATH=/usr/local/share/jupyter
+
+%runscript
+    # Default: launch JupyterLab bound to all interfaces.
+    # Participants set NOTEBOOK_DIR or pass --notebook-dir themselves.
+    exec jupyter lab \
+        --ip=0.0.0.0 \
+        --no-browser \
+        --notebook-dir="${NOTEBOOK_DIR:-${HOME}}" \
+        "$@"
