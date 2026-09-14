@@ -1,21 +1,50 @@
 name: spatial-course-2026-nb1
+
+# =====================================================================
+# Notebook 1: bin2cell (CRC Visium HD) -> CellTypist -> squidpy
+# France 2026 Spatial Transcriptomics summer school (Aussois).
+# =====================================================================
+
 channels:
   - conda-forge
   - nodefaults
+
+# Set thread caps automatically whenever this environment runs
+# to prevent thread-thrashing and frozen imports on HPC login/shared nodes:
+variables:
+  OMP_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+  OPENBLAS_NUM_THREADS: "1"
+  NUMBA_NUM_THREADS: "1"
+
 dependencies:
   - python=3.10
   - pip
   - ipykernel
   - setuptools<81
+
+  # --- scientific core (conda-forge prebuilt binaries) ---
   - numpy=1.26.4
+  - pandas
+  - scipy
+  - scikit-learn
+  - scikit-image>=0.22,<0.25
+  - matplotlib
+  - seaborn
+  - h5py
+  - pytables
+  - python-igraph
+  - tifffile
+
+  # --- pip packages (prevents solver loops & TF conflicts) ---
   - pip:
       - opencv-python-headless
-      - "tensorflow-macos==2.15.0 ; sys_platform == 'darwin' and platform_machine == 'arm64'"
-      - "tensorflow==2.15.* ; sys_platform != 'darwin' or platform_machine != 'arm64'"
-      - csbdeep
-      - stardist
-      - bin2cell
       - scanpy
       - anndata
       - squidpy
       - celltypist
+      - bin2cell
+      - stardist
+      - csbdeep
+      - "tensorflow-macos==2.15.0 ; sys_platform == 'darwin' and platform_machine == 'arm64'"
+      - "tensorflow==2.15.* ; sys_platform != 'darwin' or platform_machine != 'arm64'"
