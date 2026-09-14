@@ -28,7 +28,8 @@ dependencies:
   - pillow
 
   # --- Interactive Visualization stack ---
-  - bokeh
+  - "bokeh>=3.10,<3.11"
+  - "panel>=2.0"
   - holoviews
   - datashader
 
