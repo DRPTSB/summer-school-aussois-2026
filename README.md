@@ -4,6 +4,8 @@ Tutorial materials for a hands-on session on **Visium HD** spatial transcriptomi
 Nadav Yayon (Cambridge Stem Cell Institute / Teichmann Lab). Two notebooks take you from raw
 Visium HD data to single cells, cell types, and quantitative tissue architecture.
 
+Link to presentation today - https://docs.google.com/presentation/d/1DQMjan8_0VNYFwEBoOGDaST2ox4a03wg4M8_828kxoU/edit?usp=sharing
+
 | Notebook | Topic | Tools |
 |----------|-------|-------|
 | [`01_bin2cell_crc_celltypist_squidpy`](notebooks/01_bin2cell_crc_celltypist_squidpy.ipynb) | Reconstruct single cells from Visium HD, annotate them, and measure spatial proximity | **bin2cell**, scanpy, **CellTypist**, **squidpy** |
